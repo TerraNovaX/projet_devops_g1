@@ -14,6 +14,7 @@ jobs:
           node-version: 20
       - name: Install dependencies
         run: npm install
+        working-directory: ./server
 
   build:
     needs: install
@@ -27,8 +28,10 @@ jobs:
           node-version: 20
       - name: Install dependencies
         run: npm install
+        working-directory: ./server
       - name: Build (if needed)
         run: npm run build
+        working-directory: ./server
 
   deploy:
     needs: build
@@ -49,9 +52,12 @@ jobs:
 
       - name: Terraform Init
         run: terraform init
+        working-directory: ./infra
 
       - name: Terraform Plan
         run: terraform plan
+        working-directory: ./infra
 
       - name: Terraform Apply
         run: terraform apply -auto-approve
+        working-directory: ./infra
