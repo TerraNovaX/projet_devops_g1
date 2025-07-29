@@ -1,8 +1,9 @@
 name: Deploy with terraform
 
-on: pull_request # Trigger the workflow on pull requests
-branches:
-  - main # Only run for pull requests targeting the main branch
+on:
+  pull_request:
+    branches:
+      - main # Only run for pull requests targeting the main branch
 
 permissions:
   id-token: write # Permission to write an ID token
