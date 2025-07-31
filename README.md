@@ -1,49 +1,126 @@
+Voici ton README formaté proprement en **Markdown** (compatible GitHub) :
+
 # Projet DevOps IIM
 
-Rôles de chaque membre de l'équipe :
+## 👥 Membres de l'équipe et rôles
 
-  - Ketchuskana SON ESSOME MOUKOURI : CD pipeline pour le back
-  - Myriam BENABDESSADOK : CD pipeline pour le front
-  - Salma WADOUACHI : CI pipeline pour le front
-  - Axelle NIGON : CI pipeline pour le back
+- **Ketchuskana SON ESSOME MOUKOURI** : Pipeline CD pour le backend  
+- **Myriam BENABDESSADOK** : Pipeline CD pour le frontend  
+- **Salma WADOUACHI** : Pipeline CI pour le frontend  
+- **Axelle NIGON** : Pipeline CI pour le backend  
 
-# Requis
+---
 
-  - Un compte AWS
-  - NodeJS version 20
-  - NPM package manager
+## 📋 Prérequis
 
-# Configuration AWS
+- Compte **AWS** avec droits suffisants pour créer des ressources (IAM, API Gateway, DynamoDB, etc.)  
+- **NodeJS** version 20  
+- **NPM** (gestionnaire de paquets Node.js)  
 
-Tout d'abord, avant d'entamer l'activation de la pipeline de déploiement (cd.yml), il faut créer une secret key pour autoriser AWS a créer des ressources Terraform depuis Github.
-Cela se passe au niveau du module "IAM" de la console AWS. Il faut se rendre dans IAM>Rôles>Créer un rôle. Lorsque vous avez donner un nom à votre rôle et sélectionné l'option "Services d'approbation personnalisée", copier-coller le JSON si dessous comme suit :
+---
 
+## ⚙️ Configuration AWS
+
+Avant d’activer la pipeline de déploiement (`cd.yml`), un rôle **IAM** doit être créé pour autoriser GitHub Actions à déployer les ressources Terraform.
+
+1. Connectez-vous à la console AWS  
+2. Allez dans **IAM > Rôles > Créer un rôle**  
+3. Sélectionnez **Services d’approbation personnalisée** (Custom trust policy)  
+4. Copiez-collez le JSON suivant en remplaçant les `{}` par vos valeurs :
+
+````markdown
+```json
 {
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Principal": {
-                "Federated": "arn:aws:iam::{id de votre compte AWS}:oidc-provider/token.actions.githubusercontent.com"
-            },
-            "Action": "sts:AssumeRoleWithWebIdentity",
-            "Condition": {
-                "StringEquals": {
-                    "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
-                    "token.actions.githubusercontent.com:sub": "repo:{ton identifiant github}/{nom du repo git du projet}:ref:refs/heads/{branche principal du repo git}"
-                }
-            }
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Federated": "arn:aws:iam::{ID_DE_VOTRE_COMPTE_AWS}:oidc-provider/token.actions.githubusercontent.com"
+      },
+      "Action": "sts:AssumeRoleWithWebIdentity",
+      "Condition": {
+        "StringEquals": {
+          "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
+          "token.actions.githubusercontent.com:sub": "repo:{VOTRE_ID_GITHUB}/{NOM_DU_REPO}:ref:refs/heads/{BRANCHE_PRINCIPALE}"
         }
-    ]
+      }
+    }
+  ]
 }
+````
 
-Ensuite, une fois arrivé aux autorisations, vous devez ajoutez les autorisations suivantes : AmazonS3FullAccess, CloudFrontFullAccess et IAMFullAccess. Quand vous cliquer sur le bouton "Créez", il vous suffit de cliquer sur l'arn du rôle.
+5. Dans **Autorisations**, attachez :
 
-# Configuration GitHub
+   * `AmazonS3FullAccess`
+   * `CloudFrontFullAccess`
+   * `IAMFullAccess`
 
-Suite à la création du rôle AWS, l'arn du rôle fera office de secret key pour permettre la configuration du compte AWS depuis la pipeline CD pour permettre la création de ressources AWS pour le déploiement du front et du back. Pour cela, vous devez vous rendre dans Settings>Secrets and variables>Create a new secret repository. Enfin, vous mettez comme nom de secret key "AWS_IAM_ROLE" et dans le champ "Secret" l'arn du rôle AWS crée précédemment.
+6. Créez le rôle et copiez son **ARN**.
 
-# Fonctionnement du projet
+---
 
-Pour tester les pipeline CI/CD, il suffit simplement de modifier l'un des codes du projet "client" ou "server" sur une autre branche que la branche principal. Puis une fois que les modifications sont délivré via les commandes git add . > git commit -m "{message que vous souhaitez}" > git push origin {la branche que vous avez crée}, la pipline CI s'activera. Une fois que cette pipeline est terminé avec succès, vous pouvez créez un pull request qui activera la pipeline CD pour vérifier si le déploiement se réalise correctement.
-Pour tester le site web au complet avec front et API déployé, vous créez un fichier .env à la racine du projet front dans le dossier "client" où vous devez ajouté cet variable d'environnement : TABLE_NAME = {arn de la table DynamoDB déployé}
+## 🔑 Configuration GitHub
+
+1. Dans votre dépôt GitHub : **Settings > Secrets and variables > Actions > New repository secret**
+2. Créez un secret :
+
+   * **Nom** : `AWS_IAM_ROLE`
+   * **Valeur** : ARN du rôle AWS créé précédemment
+
+---
+
+## 🔄 Fonctionnement des pipelines CI/CD
+
+* **Pipeline CI**
+
+  * Déclenchée sur push dans une branche autre que la principale
+  * Tests, lint, build
+
+* **Pipeline CD**
+
+  * Déclenchée sur Pull Request vers la branche principale
+  * Provisionne les ressources AWS via Terraform et déploie les applications Frontend & Backend
+
+---
+
+## ☁️ Architecture Cloud
+
+* **Architecture cible**
+
+  * Service de conteneurs managé (AWS ECS/Fargate) pour Backend & Frontend
+* **Ressources nécessaires**
+
+  * DynamoDB (Base de données)
+
+---
+
+## 📦 Provisioning avec Terraform
+
+1. Configurer le provider AWS
+2. Définir les ressources : VPC, ECS, DynamoDB, API Gateway, IAM
+3. Tester avec `terraform plan`
+4. Appliquer avec `terraform apply`
+
+---
+
+## ⚙️ Pipeline CI/CD
+
+Étapes principales :
+
+* Cloner le dépôt
+* Déploiement via `terraform apply`
+
+---
+
+## ⚠️ Problème rencontré
+
+Un problème persiste lors du déploiement avec la pipeline CD via GitHub Actions.
+
+* Les droits AWS semblent corrects (captures jointes)
+* Déploiement **réussi en local** via mes clés AWS personnelles (URL fonctionnelle)
+* Problème probablement lié aux credentials ou à la configuration IAM pour GitHub Actions
+
+---
+
+💡 **Étape suivante** : Investiguer la configuration IAM (Trust Policy & permissions) afin que GitHub Actions puisse assumer correctement le rôle AWS.
