@@ -1,5 +1,3 @@
-Voici ton README formaté proprement en **Markdown** (compatible GitHub) :
-
 # Projet DevOps IIM
 
 ## 👥 Membres de l'équipe et rôles
