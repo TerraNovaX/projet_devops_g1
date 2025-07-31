@@ -2,10 +2,10 @@
 
 Rôles de chaque membre de l'équipe :
 
-  -
-  -
-  -
-  -
+  - Ketchuskana SON ESSOME MOUKOURI : CD pipeline pour le back
+  - Myriam BENABDESSADOK : CD pipeline pour le front
+  - Salma WADOUACHI : CI pipeline pour le front
+  - Axelle NIGON : CI pipeline pour le back
 
 # Requis
 
